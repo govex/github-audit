@@ -1,0 +1,19 @@
+# CODEOWNERS
+# Each line maps a file/path pattern to the owner(s) responsible for reviewing changes.
+# Owners are automatically requested for review when a PR touches their files.
+# Docs: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global fallback — everything not matched below
+* @katigregg
+
+# Core audit scripts
+audit/audit.py    @katigregg
+audit/to_excel.py @katigregg
+
+# Documentation & governance files
+*.md        @katigregg
+LICENSE     @katigregg
+CITATION.cff @katigregg
+
+# GitHub config & CI
+.github/    @katigregg

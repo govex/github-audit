@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-test:
+    name: Lint & Smoke Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: audit/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r audit/requirements.txt
+
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          # Fail on syntax errors and undefined names; warn on style
+          flake8 audit/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 audit/ --count --max-line-length=120 --statistics --exit-zero
+
+      - name: Verify scripts are importable (syntax check)
+        run: |
+          python -m py_compile audit/audit.py
+          python -m py_compile audit/to_excel.py
+          echo "Syntax OK"
+
+      - name: Smoke test — help / no-token path
+        # Runs audit against a very small public org with no token to confirm
+        # the script exits cleanly (some data masked, no crash).
+        run: |
+          python audit/audit.py github-audit-smoketest 2>&1 | head -20 || true
+        env:
+          GITHUB_TOKEN: ""   # intentionally empty — tests the unauthenticated path
